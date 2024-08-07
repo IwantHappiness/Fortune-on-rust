@@ -5,7 +5,7 @@ use std::{
     path::PathBuf,
 };
 
-const DIR: &str = "src/lib";
+const DIR: &str = "assets";
 
 fn main() {
     let dir_files = match fs::read_dir(&DIR) {
