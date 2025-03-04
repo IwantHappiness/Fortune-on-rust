@@ -1,29 +1,34 @@
-use rand::Rng;
+use rand::random_range;
 use std::{
-    fs::{self, DirEntry, File},
+    fs::{self, File},
     io::Read,
     path::PathBuf,
+    process,
 };
 
 const DIR: &str = "assets";
+const SEPPARTOR: &str = "%";
 
 fn main() {
-    let dir_files = match fs::read_dir(&DIR) {
-        Err(e) => panic!("Не найдена папка с фразами: {e}"),
-        Ok(vec) => vec,
+    let dir_files: Vec<PathBuf> = match fs::read_dir(DIR) {
+        Err(_) => {
+            eprintln!("Не найдена папка с фразами.");
+            process::exit(1);
+        }
+        Ok(vec) => vec.flatten().filter_map(|e| Some(e.path())).collect(),
     };
 
-    let dir_files: Vec<DirEntry> = dir_files.map(|i| i.unwrap()).collect();
-    let path: Vec<PathBuf> = dir_files.iter().map(|element| element.path()).collect();
-
-    let rand_num = rand::thread_rng().gen_range(0..dir_files.len());
-
-    let mut file = File::open(&path[rand_num]).unwrap();
-
+    let rand_num = random_range(0..dir_files.len());
+    let mut file = File::open(&dir_files[rand_num]).unwrap();
     let mut s = String::new();
 
-    file.read_to_string(&mut s).unwrap();
-    let s: Vec<&str> = s.split('%').collect();
-    let rand_num2 = rand::thread_rng().gen_range(0..s.len() - 1);
-    println!("{:#}", s[rand_num2]);
+    if let Ok(_) = file.read_to_string(&mut s) {
+        let s: Vec<&str> = s.split(SEPPARTOR).collect();
+        let rand_num = random_range(0..s.len() - 1);
+
+        println!("{:#}", s[rand_num]);
+    } else {
+        eprintln!("Не удалось прочитать файл.");
+        process::exit(1);
+    }
 }
