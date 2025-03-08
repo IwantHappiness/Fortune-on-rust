@@ -19,16 +19,21 @@ fn main() {
     };
 
     let rand_num = random_range(0..dir_files.len());
-    let mut file = File::open(&dir_files[rand_num]).unwrap();
-    let mut s = String::new();
 
-    if let Ok(_) = file.read_to_string(&mut s) {
-        let s: Vec<&str> = s.split(SEPPARTOR).collect();
-        let rand_num = random_range(0..s.len() - 1);
+    if let Ok(mut file) = File::open(&dir_files[rand_num]) {
+        let mut s = String::new();
 
-        println!("{:#}", s[rand_num]);
+        if let Ok(_) = file.read_to_string(&mut s) {
+            let s: Vec<&str> = s.split(SEPPARTOR).collect();
+            let rand_num = random_range(0..s.len() - 1);
+
+            println!("{:#}", s[rand_num]);
+        } else {
+            eprintln!("Не удалось прочитать файл.");
+            process::exit(1);
+        }
     } else {
-        eprintln!("Не удалось прочитать файл.");
+        eprintln!("Ну удалось открыть файл.");
         process::exit(1);
-    }
+    };
 }
